@@ -171,7 +171,7 @@ Auto-check-in/
 
 ```json
 {
-  "student_no": "202537291",
+  "student_no": "2025XXXXX",
   "password": "your_password"
 }
 ```
