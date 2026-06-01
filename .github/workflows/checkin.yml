@@ -32,7 +32,8 @@ jobs:
         run: |
           if [ -n "$FEISHU_WEBHOOK_URL" ]; then
             STATUS=${{ job.status }}
+            TIME=$(TZ='Asia/Shanghai' date '+%Y-%m-%d %H:%M:%S')
             curl -s -X POST "$FEISHU_WEBHOOK_URL" \
               -H "Content-Type: application/json" \
-              -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"[Auto Check-In] $STATUS at $(date '+%Y-%m-%d %H:%M:%S')\"}}"
+              -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"[Auto Check-In] $STATUS at $TIME\"}}"
           fi
