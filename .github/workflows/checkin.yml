@@ -1,0 +1,38 @@
+name: Auto Check-In
+
+on:
+  # 每天北京时间 8:00 (UTC 0:00)
+  schedule:
+    - cron: '0 0 * * *'
+  # 允许手动触发测试
+  workflow_dispatch:
+
+jobs:
+  checkin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Create config from secrets
+        run: |
+          echo '{"student_no":"${{ secrets.STUDENT_NO }}","password":"${{ secrets.PASSWORD }}"}' > config.json
+
+      - name: Run check-in
+        run: node checkin.js
+
+      - name: Send Feishu notification
+        if: always()
+        env:
+          FEISHU_WEBHOOK_URL: ${{ secrets.FEISHU_WEBHOOK_URL }}
+        run: |
+          if [ -n "$FEISHU_WEBHOOK_URL" ]; then
+            STATUS=${{ job.status }}
+            curl -s -X POST "$FEISHU_WEBHOOK_URL" \
+              -H "Content-Type: application/json" \
+              -d "{\"msg_type\":\"text\",\"content\":{\"text\":\"[Auto Check-In] $STATUS at $(date '+%Y-%m-%d %H:%M:%S')\"}}"
+          fi
